@@ -45,6 +45,15 @@
           </q-item-section>
         </q-item>
 
+        <q-item to="/documents" clickable active-class="bg-primary text-white">
+          <q-item-section avatar>
+            <q-icon name="description" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label> Documents </q-item-label>
+          </q-item-section>
+        </q-item>
+
         <q-item to="/settings" clickable active-class="bg-primary text-white">
           <q-item-section avatar>
             <q-icon name="settings" />
