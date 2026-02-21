@@ -1,17 +1,24 @@
 import { defineStore } from 'pinia';
 import { apiService } from '../services/api';
 
+interface AuthState {
+  apiKey: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
+}
+
 export const useAuthStore = defineStore('auth', {
-  state: () => ({
+  state: (): AuthState => ({
     apiKey: apiService.getApiKey(),
     isAuthenticated: !!apiService.getApiKey(),
     loading: false,
-    error: null as string | null
+    error: null
   }),
 
   getters: {
-    hasApiKey: (state) => !!state.apiKey,
-    authStatus: (state) => state.isAuthenticated
+    hasApiKey: (state: AuthState) => !!state.apiKey,
+    authStatus: (state: AuthState) => state.isAuthenticated
   },
 
   actions: {
