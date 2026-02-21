@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  mongosq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "22222:22222"
+    environment:
+      - MONGODB_URI=mongodb://localhost:27017
+      - MONGODB_DB_NAME=admin
+    volumes:
+      - ./server/.env:/app/.env
+    restart: unless-stopped
