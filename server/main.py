@@ -1,10 +1,17 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
+import os
+import jwt
+from datetime import datetime, timedelta
 from src.db.manager import mongo_manager
 from src.db.connection import mongo_conn
 from src.config.security import verify_api_key
+from src.config.settings import settings
+
 
 # Create FastAPI application
 app = FastAPI(
@@ -16,11 +23,15 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=settings.cors_allow_origin,  # In production, replace with specific origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files for frontend
+if os.path.exists("/app/static"):
+    app.mount("/", StaticFiles(directory="/app/static", html=True), name="static")
 
 # Pydantic models for request validation
 class DatabaseCreate(BaseModel):
@@ -39,6 +50,16 @@ class CollectionDelete(BaseModel):
 
 # Pydantic models for response formatting
 class MessageResponse(BaseModel):
+    message: str
+    success: bool
+
+class LoginRequest(BaseModel):
+    account: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
     message: str
     success: bool
 
@@ -90,6 +111,38 @@ class DatabaseConnectionSettings(BaseModel):
     mongodb_max_pool_size: int = Field(default=100, description="Maximum connection pool size")
     mongodb_min_pool_size: int = Field(default=10, description="Minimum connection pool size")
     mongodb_max_idle_time_ms: int = Field(default=300000, description="Maximum idle time in milliseconds")
+
+# Login endpoint
+@app.post("/login", response_model=LoginResponse)
+async def login(login_data: LoginRequest):
+    """Login with account and password"""
+    try:
+        # Get account and password from settings
+        account = settings.account
+        password = settings.password
+        
+        # Verify account and password
+        if login_data.account != account or login_data.password != password:
+            raise HTTPException(status_code=401, detail="Invalid account or password")
+        
+        # Generate JWT token
+        api_key = settings.api_key
+        payload = {
+            "sub": account,
+            "exp": datetime.utcnow() + timedelta(hours=24)  # Token expires in 24 hours
+        }
+        token = jwt.encode(payload, api_key, algorithm="HS256")
+        
+        return LoginResponse(
+            access_token=token,
+            token_type="bearer",
+            message="Login successful",
+            success=True
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during login: {str(e)}")
 
 # Health check endpoint
 @app.get("/health", response_model=MessageResponse)
@@ -387,10 +440,10 @@ async def get_connection_settings():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting connection settings: {str(e)}")
 
-# Root endpoint
-@app.get("/")
-async def root():
-    """Root endpoint"""
+# API root endpoint (moved to /api to avoid conflict with static files)
+@app.get("/api")
+async def api_root():
+    """API root endpoint"""
     return {
         "message": "MongoDB Database Management API",
         "version": "1.0.0",

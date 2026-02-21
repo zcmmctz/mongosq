@@ -21,6 +21,13 @@ class Settings(BaseSettings):
     # Security settings
     api_key: str = "your-secret-api-key"
     
+    # Account settings
+    account: str = "admin"
+    password: str = "your-password-change-in-production"
+
+    # CORS settings
+    cors_allow_origin: str = "*"
+    
     class Config:
         env_file = ".env"
         case_sensitive = False

@@ -9,6 +9,8 @@ Requires-Dist: pymongo>=4.7.0
 Requires-Dist: pydantic-settings>=2.1.0
 Requires-Dist: uvicorn>=0.24.0
 Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: pyjwt>=2.8.0
+Requires-Dist: jwt>=1.4.0
 
 # MongoDB Database Management API
 
