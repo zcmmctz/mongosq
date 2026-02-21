@@ -2,9 +2,11 @@
 
 import autoprefixer from 'autoprefixer';
 // import rtlcss from 'postcss-rtlcss'
+import tailwindcss from 'tailwindcss';
 
 export default {
   plugins: [
+    tailwindcss(),
     // https://github.com/postcss/autoprefixer
     autoprefixer({
       overrideBrowserslist: [
