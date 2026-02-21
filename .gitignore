@@ -34,3 +34,4 @@ yarn-error.log*
 frontend/dist
 __pycache__
 server/src/db/__pycache__
+server/__pycache__
