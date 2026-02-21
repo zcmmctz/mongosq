@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import os
-import jwt
+import jwt as pyjwt
 from datetime import datetime, timedelta
 from src.db.manager import mongo_manager
 from src.db.connection import mongo_conn
@@ -30,10 +30,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Mount static files for frontend
-if os.path.exists("/app/static"):
-    app.mount("/", StaticFiles(directory="/app/static", html=True), name="static")
 
 # Pydantic models for request validation
 class DatabaseCreate(BaseModel):
@@ -133,7 +129,7 @@ async def login(login_data: LoginRequest):
             "sub": account,
             "exp": datetime.utcnow() + timedelta(hours=24)  # Token expires in 24 hours
         }
-        token = jwt.encode(payload, api_key, algorithm="HS256")
+        token = pyjwt.encode(payload, api_key, algorithm="HS256")
         
         return LoginResponse(
             access_token=token,
@@ -451,6 +447,10 @@ async def api_root():
         "version": "1.0.0",
         "docs": "/docs"
     }
+
+# Mount static files for frontend (after all API routes to avoid conflict)
+if os.path.exists("/app/static"):
+    app.mount("/", StaticFiles(directory="/app/static", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
