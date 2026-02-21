@@ -33,5 +33,18 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
+  // Route guard to check authentication
+  Router.beforeEach((to, from, next) => {
+    const requiresAuth = to.meta.requiresAuth !== false;
+    const apiKey = localStorage.getItem('apiKey');
+    
+    if (requiresAuth && !apiKey) {
+      // Redirect to login if not authenticated
+      next('/login');
+    } else {
+      next();
+    }
+  });
+
   return Router;
 });

@@ -70,9 +70,9 @@ class ApiService {
   private apiKey: string | null = null;
 
   constructor() {
-    // Create axios instance with base URL
+    // Create axios instance with base URL (relative path for Docker deployment)
     this.axios = axios.create({
-      baseURL: 'http://localhost:22222', // Backend API URL
+      baseURL: '', // Use relative path to avoid CORS issues in Docker
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'

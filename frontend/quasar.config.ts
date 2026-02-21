@@ -81,6 +81,33 @@ export default defineConfig((/* ctx */) => {
     devServer: {
       // https: true,
       open: true, // opens browser window automatically
+      proxy: {
+        '/api': {
+          target: 'http://localhost:22222',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        },
+        '/login': {
+          target: 'http://localhost:22222',
+          changeOrigin: true
+        },
+        '/health': {
+          target: 'http://localhost:22222',
+          changeOrigin: true
+        },
+        '/databases': {
+          target: 'http://localhost:22222',
+          changeOrigin: true
+        },
+        '/collections': {
+          target: 'http://localhost:22222',
+          changeOrigin: true
+        },
+        '/settings': {
+          target: 'http://localhost:22222',
+          changeOrigin: true
+        }
+      }
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
