@@ -84,26 +84,10 @@ export default defineConfig((/* ctx */) => {
       proxy: {
         '/api': {
           target: 'http://localhost:22222',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
-        },
-        '/login': {
-          target: 'http://localhost:22222',
           changeOrigin: true
+          // 移除 rewrite 配置，保留 /api 前缀
         },
         '/health': {
-          target: 'http://localhost:22222',
-          changeOrigin: true
-        },
-        '/databases': {
-          target: 'http://localhost:22222',
-          changeOrigin: true
-        },
-        '/collections': {
-          target: 'http://localhost:22222',
-          changeOrigin: true
-        },
-        '/settings': {
           target: 'http://localhost:22222',
           changeOrigin: true
         }

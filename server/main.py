@@ -115,7 +115,7 @@ class DatabaseConnectionSettings(BaseModel):
     mongodb_max_idle_time_ms: int = Field(default=300000, description="Maximum idle time in milliseconds")
 
 # Login endpoint
-@app.post("/login", response_model=LoginResponse)
+@app.post("/api/login", response_model=LoginResponse)
 async def login(login_data: LoginRequest):
     """Login with account and password"""
     try:
@@ -147,7 +147,7 @@ async def login(login_data: LoginRequest):
         raise HTTPException(status_code=500, detail=f"Error during login: {str(e)}")
 
 # Health check endpoint
-@app.get("/health", response_model=MessageResponse)
+@app.get("/api/health", response_model=MessageResponse)
 async def health_check():
     """Check if the API is running and MongoDB is connected"""
     try:
@@ -158,7 +158,7 @@ async def health_check():
         raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
 
 # Database endpoints
-@app.get("/databases", response_model=DatabasesResponse)
+@app.get("/api/databases", response_model=DatabasesResponse)
 async def list_databases():
     """List all databases"""
     try:
@@ -167,7 +167,7 @@ async def list_databases():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listing databases: {str(e)}")
 
-@app.post("/databases", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
+@app.post("/api/databases", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
 async def create_database(db: DatabaseCreate):
     """Create a new database"""
     try:
@@ -179,7 +179,7 @@ async def create_database(db: DatabaseCreate):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating database: {str(e)}")
 
-@app.delete("/databases/{db_name}", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
+@app.delete("/api/databases/{db_name}", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
 async def delete_database(db_name: str):
     """Delete a database"""
     try:
@@ -192,7 +192,7 @@ async def delete_database(db_name: str):
         raise HTTPException(status_code=500, detail=f"Error deleting database: {str(e)}")
 
 # Collection endpoints
-@app.get("/databases/{db_name}/collections", response_model=CollectionsResponse)
+@app.get("/api/databases/{db_name}/collections", response_model=CollectionsResponse)
 async def list_collections(db_name: str):
     """List all collections in a database"""
     try:
@@ -205,7 +205,7 @@ async def list_collections(db_name: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listing collections: {str(e)}")
 
-@app.post("/collections", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
+@app.post("/api/collections", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
 async def create_collection(collection: CollectionCreate):
     """Create a new collection"""
     try:
@@ -220,7 +220,7 @@ async def create_collection(collection: CollectionCreate):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating collection: {str(e)}")
 
-@app.delete("/databases/{db_name}/collections/{collection_name}", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
+@app.delete("/api/databases/{db_name}/collections/{collection_name}", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
 async def delete_collection(db_name: str, collection_name: str):
     """Delete a collection"""
     try:
@@ -236,7 +236,7 @@ async def delete_collection(db_name: str, collection_name: str):
         raise HTTPException(status_code=500, detail=f"Error deleting collection: {str(e)}")
 
 # Document endpoints
-@app.post("/databases/{db_name}/collections/{collection_name}/documents", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
+@app.post("/api/databases/{db_name}/collections/{collection_name}/documents", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
 async def create_document(db_name: str, collection_name: str, doc: DocumentCreate):
     """Create a new document"""
     try:
@@ -248,7 +248,7 @@ async def create_document(db_name: str, collection_name: str, doc: DocumentCreat
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating document: {str(e)}")
 
-@app.get("/databases/{db_name}/collections/{collection_name}/documents", response_model=DocumentsResponse)
+@app.get("/api/databases/{db_name}/collections/{collection_name}/documents", response_model=DocumentsResponse)
 async def find_documents(
     db_name: str, 
     collection_name: str, 
@@ -296,7 +296,7 @@ async def find_documents(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error finding documents: {str(e)}")
 
-@app.get("/databases/{db_name}/collections/{collection_name}/documents/{document_id}", response_model=DocumentResponse)
+@app.get("/api/databases/{db_name}/collections/{collection_name}/documents/{document_id}", response_model=DocumentResponse)
 async def find_document(db_name: str, collection_name: str, document_id: str):
     """Find a document by ID"""
     try:
@@ -324,7 +324,7 @@ async def find_document(db_name: str, collection_name: str, document_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error finding document: {str(e)}")
 
-@app.put("/databases/{db_name}/collections/{collection_name}/documents/{document_id}", response_model=DocumentUpdateResponse, dependencies=[Depends(verify_api_key)])
+@app.put("/api/databases/{db_name}/collections/{collection_name}/documents/{document_id}", response_model=DocumentUpdateResponse, dependencies=[Depends(verify_api_key)])
 async def update_document(db_name: str, collection_name: str, document_id: str, update_data: DocumentUpdate):
     """Update a document"""
     try:
@@ -352,7 +352,7 @@ async def update_document(db_name: str, collection_name: str, document_id: str, 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating document: {str(e)}")
 
-@app.delete("/databases/{db_name}/collections/{collection_name}/documents/{document_id}", response_model=DocumentDeleteResponse, dependencies=[Depends(verify_api_key)])
+@app.delete("/api/databases/{db_name}/collections/{collection_name}/documents/{document_id}", response_model=DocumentDeleteResponse, dependencies=[Depends(verify_api_key)])
 async def delete_document(db_name: str, collection_name: str, document_id: str):
     """Delete a document"""
     try:
@@ -377,7 +377,7 @@ async def delete_document(db_name: str, collection_name: str, document_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting document: {str(e)}")
 
-@app.get("/databases/{db_name}/collections/{collection_name}/documents/count", response_model=DocumentCountResponse)
+@app.get("/api/databases/{db_name}/collections/{collection_name}/documents/count", response_model=DocumentCountResponse)
 async def count_documents(db_name: str, collection_name: str, filter: Optional[str] = None):
     """Count documents matching a filter"""
     try:
@@ -407,7 +407,7 @@ async def count_documents(db_name: str, collection_name: str, filter: Optional[s
         raise HTTPException(status_code=500, detail=f"Error counting documents: {str(e)}")
 
 # Database connection settings endpoint
-@app.post("/settings/connection", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
+@app.post("/api/settings/connection", response_model=MessageResponse, dependencies=[Depends(verify_api_key)])
 async def update_connection_settings(settings_data: DatabaseConnectionSettings):
     """Update MongoDB connection settings"""
     try:
@@ -427,7 +427,7 @@ async def update_connection_settings(settings_data: DatabaseConnectionSettings):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating connection settings: {str(e)}")
 
-@app.get("/settings/connection", response_model=dict)
+@app.get("/api/settings/connection", response_model=dict)
 async def get_connection_settings():
     """Get current MongoDB connection settings"""
     try:

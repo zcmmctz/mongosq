@@ -63,21 +63,8 @@ const handleLogin = async () => {
   loading.value = true;
   
   try {
-    // Call login API
-    const response = await fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(loginForm.value)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Login failed');
-    }
-    
-    const data = await response.json();
+    // Call login API using apiService
+    const data = await apiService.login(loginForm.value.account, loginForm.value.password);
     
     // Save API key to localStorage
     apiService.setApiKey(data.access_token);

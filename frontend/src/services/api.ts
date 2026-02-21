@@ -65,6 +65,18 @@ interface DocumentUpdate {
   upsert: boolean;
 }
 
+interface LoginRequest {
+  account: string;
+  password: string;
+}
+
+interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  message: string;
+  success: boolean;
+}
+
 class ApiService {
   private axios: AxiosInstance;
   private apiKey: string | null = null;
@@ -107,6 +119,21 @@ class ApiService {
   }
 
   /**
+   * Login with account and password
+   */
+  async login(account: string, password: string): Promise<LoginResponse> {
+    try {
+      const response = await this.axios.post<LoginResponse>('/api/login', {
+        account,
+        password
+      });
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  /**
    * Add authorization header to request config
    */
   private getAuthConfig() {
@@ -144,7 +171,7 @@ class ApiService {
   // Health check
   async healthCheck(): Promise<MessageResponse> {
     try {
-      const response = await this.axios.get<MessageResponse>('/health');
+      const response = await this.axios.get<MessageResponse>('/api/health');
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -154,7 +181,7 @@ class ApiService {
   // Database operations
   async listDatabases(): Promise<DatabasesResponse> {
     try {
-      const response = await this.axios.get<DatabasesResponse>('/databases');
+      const response = await this.axios.get<DatabasesResponse>('/api/databases');
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -164,7 +191,7 @@ class ApiService {
   async createDatabase(db_name: string): Promise<MessageResponse> {
     try {
       const response = await this.axios.post<MessageResponse>(
-        '/databases',
+        '/api/databases',
         { db_name },
         this.getAuthConfig()
       );
@@ -177,7 +204,7 @@ class ApiService {
   async deleteDatabase(db_name: string): Promise<MessageResponse> {
     try {
       const response = await this.axios.delete<MessageResponse>(
-        `/databases/${db_name}`,
+        `/api/databases/${db_name}`,
         this.getAuthConfig()
       );
       return response.data;
@@ -190,7 +217,7 @@ class ApiService {
   async listCollections(db_name: string): Promise<CollectionsResponse> {
     try {
       const response = await this.axios.get<CollectionsResponse>(
-        `/databases/${db_name}/collections`
+        `/api/databases/${db_name}/collections`
       );
       return response.data;
     } catch (error) {
@@ -201,7 +228,7 @@ class ApiService {
   async createCollection(db_name: string, collection_name: string): Promise<MessageResponse> {
     try {
       const response = await this.axios.post<MessageResponse>(
-        '/collections',
+        '/api/collections',
         { db_name, collection_name },
         this.getAuthConfig()
       );
@@ -214,7 +241,7 @@ class ApiService {
   async deleteCollection(db_name: string, collection_name: string): Promise<MessageResponse> {
     try {
       const response = await this.axios.delete<MessageResponse>(
-        `/databases/${db_name}/collections/${collection_name}`,
+        `/api/databases/${db_name}/collections/${collection_name}`,
         this.getAuthConfig()
       );
       return response.data;
@@ -227,7 +254,7 @@ class ApiService {
   async createDocument(db_name: string, collection_name: string, document: Record<string, unknown>): Promise<MessageResponse> {
     try {
       const response = await this.axios.post<MessageResponse>(
-        `/databases/${db_name}/collections/${collection_name}/documents`,
+        `/api/databases/${db_name}/collections/${collection_name}/documents`,
         { document },
         this.getAuthConfig()
       );
@@ -255,7 +282,7 @@ class ApiService {
       }
       
       const response = await this.axios.get<DocumentsResponse>(
-        `/databases/${db_name}/collections/${collection_name}/documents`,
+        `/api/databases/${db_name}/collections/${collection_name}/documents`,
         { params }
       );
       return response.data;
@@ -267,7 +294,7 @@ class ApiService {
   async findDocument(db_name: string, collection_name: string, document_id: string): Promise<DocumentResponse> {
     try {
       const response = await this.axios.get<DocumentResponse>(
-        `/databases/${db_name}/collections/${collection_name}/documents/${document_id}`
+        `/api/databases/${db_name}/collections/${collection_name}/documents/${document_id}`
       );
       return response.data;
     } catch (error) {
@@ -284,7 +311,7 @@ class ApiService {
   ): Promise<DocumentUpdateResponse> {
     try {
       const response = await this.axios.put<DocumentUpdateResponse>(
-        `/databases/${db_name}/collections/${collection_name}/documents/${document_id}`,
+        `/api/databases/${db_name}/collections/${collection_name}/documents/${document_id}`,
         { update, upsert },
         this.getAuthConfig()
       );
@@ -297,7 +324,7 @@ class ApiService {
   async deleteDocument(db_name: string, collection_name: string, document_id: string): Promise<DocumentDeleteResponse> {
     try {
       const response = await this.axios.delete<DocumentDeleteResponse>(
-        `/databases/${db_name}/collections/${collection_name}/documents/${document_id}`,
+        `/api/databases/${db_name}/collections/${collection_name}/documents/${document_id}`,
         this.getAuthConfig()
       );
       return response.data;
@@ -318,7 +345,7 @@ class ApiService {
       }
       
       const response = await this.axios.get<DocumentCountResponse>(
-        `/databases/${db_name}/collections/${collection_name}/documents/count`,
+        `/api/databases/${db_name}/collections/${collection_name}/documents/count`,
         { params }
       );
       return response.data;
@@ -330,7 +357,7 @@ class ApiService {
   // Database connection settings operations
   async getConnectionSettings(): Promise<Record<string, unknown>> {
     try {
-      const response = await this.axios.get<Record<string, unknown>>('/settings/connection');
+      const response = await this.axios.get<Record<string, unknown>>('/api/settings/connection');
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -340,7 +367,7 @@ class ApiService {
   async updateConnectionSettings(settings: Record<string, unknown>): Promise<MessageResponse> {
     try {
       const response = await this.axios.post<MessageResponse>(
-        '/settings/connection',
+        '/api/settings/connection',
         settings,
         this.getAuthConfig()
       );
@@ -367,5 +394,7 @@ export type {
   DatabaseCreate,
   CollectionCreate,
   DocumentCreate,
-  DocumentUpdate
+  DocumentUpdate,
+  LoginRequest,
+  LoginResponse
 };
