@@ -10,12 +10,18 @@ class MongoDBManager:
     
     def __init__(self):
         """Initialize MongoDB manager"""
-        self.client = mongo_conn.get_client()
+        # Don't store client instance, get it from mongo_conn when needed
+        pass
+    
+    def get_client(self):
+        """Get the current MongoDB client instance"""
+        return mongo_conn.get_client()
     
     def list_databases(self):
         """List all databases"""
         try:
-            databases = self.client.list_database_names()
+            client = self.get_client()
+            databases = client.list_database_names()
             logger.info(f"Found {len(databases)} databases: {databases}")
             return databases
         except PyMongoError as e:
@@ -25,8 +31,9 @@ class MongoDBManager:
     def create_database(self, db_name):
         """Create a new database"""
         try:
+            client = self.get_client()
             # In MongoDB, databases are created when you first write data to them
-            db = self.client[db_name]
+            db = client[db_name]
             # Create a dummy collection to ensure the database is created
             db.dummy.insert_one({"created": True})
             db.dummy.drop()
@@ -39,12 +46,13 @@ class MongoDBManager:
     def drop_database(self, db_name):
         """Drop a database"""
         try:
+            client = self.get_client()
             # Check if database exists
-            if db_name not in self.client.list_database_names():
+            if db_name not in client.list_database_names():
                 logger.warning(f"Database {db_name} does not exist")
                 return False
             
-            self.client.drop_database(db_name)
+            client.drop_database(db_name)
             logger.info(f"Database {db_name} dropped successfully")
             return True
         except PyMongoError as e:
@@ -54,7 +62,8 @@ class MongoDBManager:
     def list_collections(self, db_name):
         """List all collections in a database"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collections = db.list_collection_names()
             logger.info(f"Found {len(collections)} collections in {db_name}: {collections}")
             return collections
@@ -65,7 +74,8 @@ class MongoDBManager:
     def create_collection(self, db_name, collection_name):
         """Create a new collection"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             db.create_collection(collection_name)
             logger.info(f"Collection {collection_name} created in {db_name}")
             return True
@@ -76,7 +86,8 @@ class MongoDBManager:
     def drop_collection(self, db_name, collection_name):
         """Drop a collection"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             if collection_name in db.list_collection_names():
                 db.drop_collection(collection_name)
                 logger.info(f"Collection {collection_name} dropped from {db_name}")
@@ -91,7 +102,8 @@ class MongoDBManager:
     def insert_document(self, db_name, collection_name, document):
         """Insert a single document"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             result = collection.insert_one(document)
             logger.info(f"Document inserted with ID: {result.inserted_id}")
@@ -103,7 +115,8 @@ class MongoDBManager:
     def insert_many_documents(self, db_name, collection_name, documents):
         """Insert multiple documents"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             result = collection.insert_many(documents)
             logger.info(f"Inserted {len(result.inserted_ids)} documents")
@@ -115,7 +128,8 @@ class MongoDBManager:
     def find_documents(self, db_name, collection_name, filter=None, projection=None, sort=None, limit=100, skip=0):
         """Find documents with optional filters"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             
             query = collection.find(filter or {}, projection or {})
@@ -140,7 +154,8 @@ class MongoDBManager:
     def find_one_document(self, db_name, collection_name, filter=None, projection=None):
         """Find a single document"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             document = collection.find_one(filter or {}, projection or {})
             
@@ -156,7 +171,8 @@ class MongoDBManager:
     def update_document(self, db_name, collection_name, filter, update, upsert=False):
         """Update a document"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             result = collection.update_one(filter, update, upsert=upsert)
             
@@ -172,7 +188,8 @@ class MongoDBManager:
     def delete_document(self, db_name, collection_name, filter):
         """Delete a document"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             result = collection.delete_one(filter)
             
@@ -185,7 +202,8 @@ class MongoDBManager:
     def delete_many_documents(self, db_name, collection_name, filter):
         """Delete multiple documents"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             result = collection.delete_many(filter)
             
@@ -198,7 +216,8 @@ class MongoDBManager:
     def count_documents(self, db_name, collection_name, filter=None):
         """Count documents matching a filter"""
         try:
-            db = self.client[db_name]
+            client = self.get_client()
+            db = client[db_name]
             collection = db[collection_name]
             count = collection.count_documents(filter or {})
             
