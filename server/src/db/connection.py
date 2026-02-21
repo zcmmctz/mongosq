@@ -67,10 +67,10 @@ class MongoDBConnection:
             
         except ConnectionFailure as e:
             logger.error(f"MongoDB connection failed: {str(e)}")
-            raise
+            
         except PyMongoError as e:
             logger.error(f"MongoDB error: {str(e)}")
-            raise
+            
     
     def update_connection_settings(self, uri, db_name=None, max_pool_size=None, min_pool_size=None, max_idle_time_ms=None):
         """Update connection settings and reconnect"""
@@ -80,7 +80,7 @@ class MongoDBConnection:
             return True
         except Exception as e:
             logger.error(f"Error updating connection settings: {str(e)}")
-            raise
+            return False
     
     def disconnect(self):
         """Close MongoDB connection"""
